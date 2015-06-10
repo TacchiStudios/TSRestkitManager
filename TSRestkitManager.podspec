@@ -10,11 +10,20 @@ Pod::Spec.new do |spec|
 	spec.requires_arc			= true
 	spec.ios.deployment_target	= '7.0'
 
-	spec.dependency				'RestKit', '~> 0.24.0'
-	spec.dependency				'MagicalRecord', '~> 2.2'
 
-	spec.prefix_header_contents = <<-EOS
-		#import <SystemConfiguration/SystemConfiguration.h>
-		#import <CoreData/CoreData.h>
-	EOS
+	spec.default_subspec = 'Core'
+
+	spec.subspec 'Core' do |s|
+		s.dependency	'RestKit', '~> 0.24.0'
+		s.dependency	'MagicalRecord', '~> 2.2'
+
+		s.prefix_header_contents = <<-EOS
+			#import <SystemConfiguration/SystemConfiguration.h>
+			#import <CoreData/CoreData.h>
+		EOS
+	end
+
+	spec.subspec 'User' do |s|
+		s.source_files		= 'Pod/User/*'
+	end
 end
