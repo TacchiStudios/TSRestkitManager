@@ -1,9 +1,8 @@
 //
 //  TSRestkitManager.h
-//  SpeedLearning
 //
 //  Created by Mark McFarlane on 25/03/2015.
-//  Copyright (c) 2015 Espritline Ltd. All rights reserved.
+//  Copyright (c) 2015 Tacchi Studios. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
