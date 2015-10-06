@@ -24,6 +24,7 @@ Pod::Spec.new do |spec|
 	end
 
 	spec.subspec 'User' do |s|
-		s.source_files		= 'Pod/User/*'
+		s.source_files	= 'Pod/User/*'
+		s.dependency	'UIAlertView-Blocks'
 	end
 end
