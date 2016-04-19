@@ -7,8 +7,8 @@
 
 #import "TSRestkitManager.h"
 #import <sys/utsname.h>
-#import <NSManagedObject+MagicalRecord.h>
-#import <NSPersistentStoreCoordinator+MagicalRecord.h>
+#import <MagicalRecord.h>
+
 
 
 @interface NSManagedObjectContext ()
@@ -126,6 +126,15 @@ static NSString *databaseFileName;
 		NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
 	}
 	return success;
+}
+
++ (void)saveToPersistantStore
+{
+	// Saves changes in the application's managed object context before the application terminates.
+	[[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
+	
+	// Saves changes in the application's managed object context before the application terminates.
+	[MagicalRecord cleanUp];
 }
 
 @end

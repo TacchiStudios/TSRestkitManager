@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 	spec.name					= 'TSRestkitManager'
-	spec.version				= '0.1.4'
+	spec.version				= '0.1.5'
 	spec.license				= { :type => 'Apache' }
 	spec.homepage				= 'https://github.com/TacchiStudios/TSRestkitManager'
 	spec.authors				= { 'Mark McFarlane' => 'mark@tacchistudios.com' }

@@ -50,4 +50,6 @@ typedef enum _RKlcl_enum_level_t RKLogLevel;
 // Don't backup the .sqlite file to iCloud
 + (BOOL)addSkipBackupAttributeToPersistantStoreFile;
 
++ (void)saveToPersistantStore;
+
 @end
