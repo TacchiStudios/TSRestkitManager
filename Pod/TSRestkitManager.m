@@ -7,7 +7,7 @@
 
 #import "TSRestkitManager.h"
 #import <sys/utsname.h>
-#import <MagicalRecord.h>
+#import "MagicalRecord.h"
 
 
 
