@@ -5,7 +5,7 @@ Pod::Spec.new do |spec|
 	spec.homepage				= 'https://github.com/TacchiStudios/TSRestkitManager'
 	spec.authors				= { 'Mark McFarlane' => 'mark@tacchistudios.com' }
 	spec.summary				= 'A simple wrapper for setting up RestKit and MagicalRecord.'
-	spec.source					= { :git => 'https://github.com/TacchiStudios/TSRestkitManager.git', :branch => "master" }
+	spec.source					= { :git => 'https://github.com/TacchiStudios/TSRestkitManager.git', :tag => "v#{spec.version}" }
 	spec.source_files			= 'Pod/*'
 	spec.requires_arc			= true
 	spec.ios.deployment_target	= '7.0'
