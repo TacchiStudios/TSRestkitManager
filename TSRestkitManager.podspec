@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 	spec.name					= 'TSRestkitManager'
-	spec.version				= '0.1.6'
+	spec.version				= '0.1.7'
 	spec.license				= { :type => 'Apache' }
 	spec.homepage				= 'https://github.com/TacchiStudios/TSRestkitManager'
 	spec.authors				= { 'Mark McFarlane' => 'mark@tacchistudios.com' }
@@ -14,8 +14,8 @@ Pod::Spec.new do |spec|
 	spec.default_subspec = 'Core'
 
 	spec.subspec 'Core' do |s|
-		s.dependency	'RestKit', '~> 0.24.0'
-		s.dependency	'MagicalRecord', '~> 2.2'
+		s.dependency	'RestKit', '~> 0.27.0'
+		s.dependency	'MagicalRecord', '~> 2.3.2'
 
 		s.prefix_header_contents = <<-EOS
 			#import <SystemConfiguration/SystemConfiguration.h>

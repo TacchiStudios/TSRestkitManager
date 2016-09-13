@@ -59,7 +59,7 @@ static NSString *databaseFileName;
 	[[RKObjectManager sharedManager].HTTPClient setDefaultHeader:@"x-device-details" value:[self deviceDetailsString]];
 	
 	// Enabling the network activity indicator
-	[AFNetworkActivityIndicatorManager sharedManager].enabled = YES;
+	[AFRKNetworkActivityIndicatorManager sharedManager].enabled = YES;
 	
 	[self setupMagicalRecord];
 }
@@ -88,7 +88,7 @@ static NSString *databaseFileName;
 	return [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
 }
 
-+ (void)setReachabilityStatusChangeBlock:(void (^)(AFNetworkReachabilityStatus status))block
++ (void)setReachabilityStatusChangeBlock:(void (^)(AFRKNetworkReachabilityStatus status))block
 {
 	[[RKObjectManager sharedManager].HTTPClient setReachabilityStatusChangeBlock:block];
 }
@@ -105,7 +105,7 @@ static NSString *databaseFileName;
 
 + (BOOL)isNetworkReachable
 {
-	return [[RKObjectManager sharedManager].HTTPClient networkReachabilityStatus] != AFNetworkReachabilityStatusNotReachable;
+	return [[RKObjectManager sharedManager].HTTPClient networkReachabilityStatus] != AFRKNetworkReachabilityStatusNotReachable;
 }
 
 + (NSString *)persistentStorePath

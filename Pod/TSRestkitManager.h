@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <RestKit.h>
-#import <AFNetworking.h>
+#import <AFRKNetworking.h>
 
 
 // Needs SystemConfiguration
@@ -36,7 +36,7 @@ typedef enum _RKlcl_enum_level_t RKLogLevel;
 			responseDescriptorClasses:(NSArray *)responseDescriptorClasses
 			 requestDescriptorClasses:(NSArray *)requestDescriptorClasses;
 
-+ (void)setReachabilityStatusChangeBlock:(void (^)(AFNetworkReachabilityStatus status))block;
++ (void)setReachabilityStatusChangeBlock:(void (^)(AFRKNetworkReachabilityStatus status))block;
 
 + (void)setNetworkLogLevel:(RKLogLevel)level;
 
