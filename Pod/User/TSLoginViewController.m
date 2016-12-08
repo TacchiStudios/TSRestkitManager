@@ -13,6 +13,8 @@
 
 @interface TSLoginViewController ()
 
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *bottomMarginConstraint;
+
 @end
 
 @implementation TSLoginViewController
@@ -34,6 +36,13 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loginFailed:) name:TSUserDidFailLoginNotification object:nil];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFieldTextDidChange) name:UITextFieldTextDidChangeNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeShown:)
+                                                 name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
 }
 
 - (void)setupViewProperties
@@ -125,39 +134,79 @@
 //	[self.karipasswordButtonContainerView setAlpha:1];
 	[self.spinner setAlpha:0];
 	[self.spinner stopAnimating];
+    
+    [self.forgotPasswordButton setAlpha:1];
+
 }
 
 - (void)updateLoginButton
 {
 	BOOL enable = [self emailIsValid] && [self passwordIsValid];
-	
 	[self.loginButton setEnabled:enable];
 }
+
 
 #pragma mark -
 #pragma Validation methods
 
 -(BOOL)emailIsValid
 {
-	BOOL stricterFilter = NO; // Discussion http://blog.logichigh.com/2010/09/02/validating-an-e-mail-address/
-	NSString *stricterFilterString = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
-	NSString *laxString = @".+@.+\\.[A-Za-z]{2}[A-Za-z]*";
-	NSString *emailRegex = stricterFilter ? stricterFilterString : laxString;
-	NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
-	return [emailTest evaluateWithObject:self.emailTextField.text];
+    BOOL stricterFilter = NO; // Discussion http://blog.logichigh.com/2010/09/02/validating-an-e-mail-address/
+    NSString *stricterFilterString = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}";
+    NSString *laxString = @".+@.+\\.[A-Za-z]{2}[A-Za-z]*";
+    NSString *emailRegex = stricterFilter ? stricterFilterString : laxString;
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:self.emailTextField.text];
 }
 
 - (BOOL)passwordIsValid
 {
-	return self.passwordTextField.text.length > 4;
+    return self.passwordTextField.text.length > 4;
 }
+
 
 #pragma mark -
 #pragma UITextFieldDelegateMethods
 
 - (void)textFieldTextDidChange
 {
-	[self updateLoginButton];
+    [self updateLoginButton];
+}
+
+
+#pragma mark -
+#pragma UITextFieldDelegate Methods
+
+// Called when the UIKeyboardDidShowNotification is sent.
+- (void)keyboardWillBeShown:(NSNotification*)notification
+{
+    NSDictionary* info = [notification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+
+    NSNumber *duration = info[@"UIKeyboardAnimationDurationUserInfoKey"];
+
+    [self.view layoutIfNeeded];
+
+    [self.bottomMarginConstraint setConstant:kbSize.height];
+
+    [UIView animateWithDuration:duration.doubleValue animations:^{
+        [self.view layoutIfNeeded]; // Called on parent view
+   }];
+}
+
+// Called when the UIKeyboardWillHideNotification is sent
+- (void)keyboardWillBeHidden:(NSNotification*)notification
+{
+    NSDictionary* info = [notification userInfo];
+    NSNumber *duration = info[@"UIKeyboardAnimationDurationUserInfoKey"];
+    
+    [self.view layoutIfNeeded];
+    
+    [self.bottomMarginConstraint setConstant:0];
+    
+    [UIView animateWithDuration:duration.doubleValue animations:^{
+        [self.view layoutIfNeeded]; // Called on parent view
+   }];
 }
 
 @end

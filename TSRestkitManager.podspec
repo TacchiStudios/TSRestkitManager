@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 	spec.name					= 'TSRestkitManager'
-	spec.version				= '0.1.7'
+	spec.version				= '0.1.8'
 	spec.license				= { :type => 'Apache' }
 	spec.homepage				= 'https://github.com/TacchiStudios/TSRestkitManager'
 	spec.authors				= { 'Mark McFarlane' => 'mark@tacchistudios.com' }
@@ -26,5 +26,6 @@ Pod::Spec.new do |spec|
 	spec.subspec 'User' do |s|
 		s.source_files	= 'Pod/User/*'
 		s.dependency	'UIAlertView-Blocks'
+        s.dependency    'AFOAuth2Manager'
 	end
 end

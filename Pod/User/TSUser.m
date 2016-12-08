@@ -37,13 +37,11 @@ NSString * const EMAIL			= @"email_address";
 NSString * const PASSWORD		= @"password";
 
 
-#warning Remove!
-#import "AFOAuth2Client.h"
+#import <AFOauth2Manager/AFOauth2Manager.h>
 
 @interface TSUser()
 
-#warning Remove!
-@property (nonatomic, strong) AFOAuth2Client *oauthClient;
+@property (nonatomic, strong) AFOAuth2Manager *oauthClient;
 
 @property (nonatomic) BOOL allowsAnonymousSessions;
 @property (nonatomic, copy) NSString *anonymousSessionPath, *anonymousSessionUsername, *anonymousSessionPassword;
@@ -92,7 +90,7 @@ NSString * const PASSWORD		= @"password";
 
 - (AFOAuthCredential *)oauthCredential
 {
-	return nil;
+    return nil;
 //	return [AFOAuthCredential retrieveCredentialWithIdentifier:self.oauthClient.serviceProviderIdentifier];
 }
 
@@ -110,7 +108,7 @@ NSString * const PASSWORD		= @"password";
 	self.anonymousSessionUsername = username;
 	self.anonymousSessionPassword = password;
 	
-	//		self.oauthClient = [SLEOauthClient clientWithBaseURL:[[RKObjectManager sharedManager] baseURL] clientID:OAUTH_CLIENT_ID secret:OAUTH_CLIENT_SECRET];
+    self.oauthClient = [AFOAuth2Manager managerWithBaseURL:[[RKObjectManager sharedManager] baseURL] clientID:clientID secret:secret];
 }
 
 - (void)createSession
@@ -125,7 +123,7 @@ NSString * const PASSWORD		= @"password";
 	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidStartGettingSessionTokenNotification object:nil];
 	
 	
-	[self.oauthClient authenticateUsingOAuthWithPath:self.anonymousSessionPath
+	[self.oauthClient authenticateUsingOAuthWithURLString:self.anonymousSessionPath
 											username:self.anonymousSessionUsername
 											password:self.anonymousSessionPassword
 											   scope:nil
@@ -140,7 +138,7 @@ NSString * const PASSWORD		= @"password";
 											 failure:^(NSError *error) {
 												 NSLog(@"Error: %@", error);
 												 
-#warning handle!
+#warning handle! Need to use a generic AlertView, not this library
 //												 [UIAlertView alertViewWithTitle:@"Couldn't initiate" message:@"Please try again now or close the app and try later" cancelButtonTitle:nil otherButtonTitles:@[@"Retry"] onDismiss:^(int buttonIndex, UIAlertView *alertView) {
 //													 [self createSession];
 //												 } onCancel:nil];
@@ -152,9 +150,9 @@ NSString * const PASSWORD		= @"password";
 	if (self.allowsAnonymousSessions) {
 		NSAssert([self hasSessionToken], @"MUST HAVE A SESSION OAUTH TOKEN");
 		
-		[[[RKObjectManager sharedManager] HTTPClient] postPath:self.sessionUserConnectionPath parameters:@{@"username": email, @"password": password} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+		[[[RKObjectManager sharedManager] HTTPClient] postPath:self.sessionUserConnectionPath parameters:@{@"username": email, @"password": password} success:^(AFRKHTTPRequestOperation *operation, id responseObject) {
 			[self handleLoginWithAnonymousSessionWithResponseObject:responseObject];
-		} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+		} failure:^(AFRKHTTPRequestOperation *operation, NSError *error) {
 			NSLog(@"%@ - %s",error.localizedDescription,__PRETTY_FUNCTION__);
 			
 #warning put back in
@@ -174,8 +172,8 @@ NSString * const PASSWORD		= @"password";
 		NSMutableURLRequest *request = [[RKObjectManager sharedManager].HTTPClient requestWithMethod:@"POST" path:urlString parameters:nil];
 		[request setHTTPBody:[httpBody dataUsingEncoding:NSUTF8StringEncoding]];
 		
-		AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-		[operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+		AFRKHTTPRequestOperation *operation = [[AFRKHTTPRequestOperation alloc] initWithRequest:request];
+		[operation setCompletionBlockWithSuccess:^(AFRKHTTPRequestOperation *operation, id responseObject) {
 			
 			NSLog(@"Did load response - %@ - %s",operation.responseString,__PRETTY_FUNCTION__);
 			
@@ -188,7 +186,7 @@ NSString * const PASSWORD		= @"password";
 			} else {
 				[self handleLoginError:nil response:operation];
 			}
-		} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+		} failure:^(AFRKHTTPRequestOperation *operation, NSError *error) {
 			[self handleLoginError:error response:operation];
 		}];
 		[operation start];
@@ -204,10 +202,6 @@ NSString * const PASSWORD		= @"password";
 	[self setUserDefaultsWithEmail:email password:password token:accessToken];
 	
 	[self setupAuthHeader];
-	
-#warning Take these out, they should be done on either a notification or in a block
-//	[Flurry setUserID:email];
-//	[Flurry logEvent:SLEFlurryEventUserLoggedIn];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidLoginNotification object:self];
 }
@@ -284,7 +278,7 @@ NSString * const PASSWORD		= @"password";
 	}
 }
 
-- (void)handleLoginError:(NSError *)error response:(AFHTTPRequestOperation *)operation
+- (void)handleLoginError:(NSError *)error response:(AFRKHTTPRequestOperation *)operation
 {
 	NSString *message = operation.responseString;
 	
@@ -334,7 +328,7 @@ NSString * const PASSWORD		= @"password";
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidStartForgotPasswordNotification object:nil];
 	
-	[[RKObjectManager sharedManager].HTTPClient postPath:self.forgotPasswordPath parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+	[[RKObjectManager sharedManager].HTTPClient postPath:self.forgotPasswordPath parameters:params success:^(AFRKHTTPRequestOperation *operation, id responseObject) {
 		NSLog(@"%@ - %s",operation.responseString,__PRETTY_FUNCTION__);
 		
 		if (!operation.hasAcceptableStatusCode) {
@@ -342,7 +336,7 @@ NSString * const PASSWORD		= @"password";
 		} else {
 			[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidFinishForgotPasswordNotification object:nil]; // Can add userinfo here if necessart=y
 		}
-	} failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+	} failure:^(AFRKHTTPRequestOperation *operation, NSError *error) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidFailForgotPasswordNotification object:nil]; // Can add userinfo here if necessary
 	}];
 }
@@ -352,6 +346,13 @@ NSString * const PASSWORD		= @"password";
 	[self setUserDefaultsWithEmail:nil password:nil token:nil];
  
 	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidLogoutNotification object:self];
+}
+
+- (void)logoutDueToAuthError
+{
+    [[[UIAlertView alloc] initWithTitle:@"アカウントはログアウトされました。" message:@"ご利用可能な端末制限数を超えています。お使いの端末をご確認いただきログインをお試しください。" delegate:nil cancelButtonTitle:@"閉じる" otherButtonTitles:nil] show];
+    
+    [self logout];
 }
 
 @end

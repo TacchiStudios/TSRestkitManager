@@ -43,3 +43,7 @@ Where necessary, use additional options, e.g. (see header for more)
 	[TSRestkitManager setNetworkLogLevel:RKLogLevelTrace];
 	[TSRestkitManager setObjectMappingLogLevel:RKLogLevelTrace];
 ```
+
+## Notes
+
+TSUser subspec is highly experimental and messy right now. It also has some client-specific behaviour in it. Use at your own risk!!!
