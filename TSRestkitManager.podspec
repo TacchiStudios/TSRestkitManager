@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 	spec.name					= 'TSRestkitManager'
-	spec.version				= '0.1.8'
+	spec.version				= '0.2.0'
 	spec.license				= { :type => 'Apache' }
 	spec.homepage				= 'https://github.com/TacchiStudios/TSRestkitManager'
 	spec.authors				= { 'Mark McFarlane' => 'mark@tacchistudios.com' }
@@ -8,7 +8,7 @@ Pod::Spec.new do |spec|
 	spec.source					= { :git => 'https://github.com/TacchiStudios/TSRestkitManager.git', :tag => "v#{spec.version}" }
 	spec.source_files			= 'Pod/*'
 	spec.requires_arc			= true
-	spec.ios.deployment_target	= '7.0'
+	spec.ios.deployment_target	= '8.0'
 
 
 	spec.default_subspec = 'Core'
@@ -25,7 +25,7 @@ Pod::Spec.new do |spec|
 
 	spec.subspec 'User' do |s|
 		s.source_files	= 'Pod/User/*'
-		s.dependency	'UIAlertView-Blocks'
-        s.dependency    'AFOAuth2Manager'
+		s.dependency 'FFGlobalAlertController'
+		s.dependency 'UICKeyChainStore'
 	end
 end

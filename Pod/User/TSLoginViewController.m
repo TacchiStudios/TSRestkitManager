@@ -9,7 +9,7 @@
 #import "TSLoginViewController.h"
 #import <TSUser.h>
 #import <TSForgotPasswordViewController.h>
-#import <UIAlertView+Blocks.h>
+#import "UIAlertController+Window.h"
 
 @interface TSLoginViewController ()
 
@@ -109,9 +109,12 @@
 
 - (void)handleNoNetwork:(NSString *)message
 {
-	[[[UIAlertView alloc] initWithTitle:@"Login error" message:message cancelButtonItem:[RIButtonItem itemWithLabel:@"OK" action:nil] otherButtonItems:[RIButtonItem itemWithLabel:@"Retry" action:^{
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Login error" message:message preferredStyle:UIAlertControllerStyleAlert];
+	[alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+	[alert addAction:[UIAlertAction actionWithTitle:@"Retry" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
 		[self loginButtonTapped:self.loginButton];
-	}], nil] show];
+	}]];
+	[alert show];
 }
 
 - (void)animateToActiveNetworkState
