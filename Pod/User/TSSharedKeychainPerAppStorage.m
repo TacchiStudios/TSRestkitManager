@@ -34,7 +34,9 @@ NSString * const SHARED_TOKEN_APP_IDS	= @"shared_token_app_ids";		// Used to sto
 	NSError *error;
 	NSData *tokenData = [UICKeyChainStore dataForKey:self.appId service:KEYCHAIN_SERVICE accessGroup:self.accessGroup error:&error];
 	NSDictionary *tokenDict = [NSKeyedUnarchiver unarchiveObjectWithData:tokenData];
-	NSLog(@"Got tokenDict from shared keychain %@ - %s",tokenDict,__PRETTY_FUNCTION__);
+	NSMutableDictionary *tokenDictForLogging = tokenDict.mutableCopy;
+	tokenDictForLogging[@"password"] = @"redacted";
+	NSLog(@"Got tokenDict from shared keychain %@ - %s", tokenDictForLogging,__PRETTY_FUNCTION__);
 	return tokenDict;
 }
 
