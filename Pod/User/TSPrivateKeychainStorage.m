@@ -11,6 +11,32 @@
 
 @implementation TSPrivateKeychainStorage
 
+- (nullable NSString*)token
+{
+	return self.tokenInfo[OAUTH_TOKEN];
+}
+
+- (nullable NSString *)email
+{
+	return self.tokenInfo[EMAIL];
+}
+
+- (nullable NSString *)password
+{
+	return self.tokenInfo[PASSWORD];
+}
+
+- (nullable NSDictionary *)tokenInfo
+{
+	NSError *error;
+	NSData *tokenData = [UICKeyChainStore dataForKey:KEYCHAIN_TOKEN_KEY service:KEYCHAIN_SERVICE error:&error];
+	NSDictionary *tokenDict = [NSKeyedUnarchiver unarchiveObjectWithData:tokenData];
+	NSMutableDictionary *tokenDictForLogging = tokenDict.mutableCopy;
+	tokenDictForLogging[@"password"] = @"redacted";
+	NSLog(@"Got tokenDict from private keychain %@ - %s", tokenDictForLogging,__PRETTY_FUNCTION__);
+	return tokenDict;
+}
+
 - (void)setToken:(NSString *)token email:(NSString *)email password:(NSString *)password
 {
 	// Store the token and name (for account selection display in UI) for this app separately from the others
@@ -29,6 +55,17 @@
 	if (!success) {
 		NSLog(@"Keychain error - %@ - %s",error.localizedDescription,__PRETTY_FUNCTION__);
 #warning - We need to do something here, like tell the user!
+	}
+}
+
+- (void)clearKeychain
+{
+	NSError *error;
+	BOOL success = [UICKeyChainStore removeAllItemsForService:KEYCHAIN_SERVICE error:&error];
+	if (!success) {
+		NSLog(@"Clear keychain failed: %@ - %s",error,__PRETTY_FUNCTION__);
+	} else {
+		NSLog(@"Keychain cleared! %@ - %s",self,__PRETTY_FUNCTION__);
 	}
 }
 
