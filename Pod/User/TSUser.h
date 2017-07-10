@@ -9,10 +9,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 extern NSString * const TSUserDidStartLoginNotification;
-extern NSString * const TSUserDidLoginNotification;			// Provides a dictionary about the user as the notification object if exists
+// Provides a dictionary about the user as the notification object if exists
+extern NSString * const TSUserDidLoginNotification;
 extern NSString * const TSUserDidFailLoginNotification;
 
-extern NSString * const TSUserWillLogoutNotification;		// Use this if you want to do any cleanup that requires the user's email address etc before it's all cleared out
+// Use this if you want to do any cleanup that requires the user's email
+// address etc before it's all cleared out
+extern NSString * const TSUserWillLogoutNotification;
 extern NSString * const TSUserDidLogoutNotification;
 
 extern NSString * const TSUserDidStartGettingSessionTokenNotification;
@@ -31,7 +34,8 @@ extern NSString * const TSUserDidStartForgotPasswordNotification;
 extern NSString * const TSUserDidFinishForgotPasswordNotification;
 extern NSString * const TSUserDidFailForgotPasswordNotification;
 
-extern NSString * const TSUserDidStartExchangingTokenNotification; // TSUserDidLoginNotification will be called after this if sucessful.
+// TSUserDidLoginNotification will be called after this if sucessful.
+extern NSString * const TSUserDidStartExchangingTokenNotification;
 extern NSString * const TSUserDidFailExchangingTokenNotification;
 
 extern NSString * const TSUserWasLoggedOutDueToAuthError;
@@ -54,25 +58,40 @@ NS_ASSUME_NONNULL_END
 - (nullable NSString *)email;
 - (nullable NSString *)password;
 @optional
-- (nullable NSSet<NSDictionary *> *)tokenDetailsForSharedKeychainSeparatedAppsThatCanBeExchangedForTokenForCurrentApp; // Only for apps that allow shared keychain storage (e.g. TSSharedKeychainPerAppStorage)
+// Only for apps that allow shared keychain storage (e.g. TSSharedKeychainPerAppStorage)
+- (nullable NSSet<NSDictionary *> *)tokenDetailsForSharedKeychainSeparatedAppsThatCanBeExchangedForTokenForCurrentApp;
 @end
 
-@class TSCreateAccountUser;											// Forward declaration of below
+// Forward declaration of below
+@class TSCreateAccountUser;
 
 
 @interface TSUser : NSObject
 
 @property (nonatomic, strong, nonnull) id<TSUserStorage> storage;
 
-@property (nonatomic, copy, nonnull) NSString *baseURL;						// Would prefer to get this from RestKit, but for now it needs to not include api version path component.
-@property (nonatomic, copy, nullable) NSString *loginPath;					// Appended to the baseURL and / to create the absolute path for login. E.g. @"oauth/token"
-@property (nonatomic, copy, nullable) NSString *sessionUserConnectionPath;	// The path to call when logging in while already having an anonymous session. This just needs to be the resource path, no base URL needed as it's taken from RK
+// Would prefer to get this from RestKit, but for now it needs to not include
+// api version path component.
+@property (nonatomic, copy, nonnull) NSString *baseURL;
+
+// Appended to the baseURL and / to create the absolute path for login. E.g. @"oauth/token"
+@property (nonatomic, copy, nullable) NSString *loginPath;
+
+// The path to call when logging in while already having an anonymous session.
+// This just needs to be the resource path, no base URL needed as it's taken from RK
+@property (nonatomic, copy, nullable) NSString *sessionUserConnectionPath;
 @property (nonatomic, copy, nullable) NSString *sharedKeychainExchangePath;
-@property (nonatomic, copy, nullable) NSString *sharedKeychainExchangeForAnonymousConnectionPath; // The path to call when linking an account to an anonymous session using an oAuth token from another app in the same shared keychain access group. This just needs to be the resource path, no base URL needed as it's taken from RK
 
-@property (nonatomic, copy, nullable) NSString *forgotPasswordPath;			// The path to call when requesting a password reset
+// The path to call when linking an account to an anonymous session using
+// an oAuth token from another app in the same shared keychain access group.
+// This just needs to be the resource path, no base URL needed as it's taken from RK
+@property (nonatomic, copy, nullable) NSString *sharedKeychainExchangeForAnonymousConnectionPath;
 
-@property (nonatomic, copy, nullable) NSString *spoofAccessToken;			// Use this to spoof in an oAuth access token for debug purposes.
+// The path to call when requesting a password reset
+@property (nonatomic, copy, nullable) NSString *forgotPasswordPath;
+
+// Use this to spoof in an oAuth access token for debug purposes.
+@property (nonatomic, copy, nullable) NSString *spoofAccessToken;
 
 + (nonnull instancetype)sharedTSUser;
 
@@ -80,19 +99,41 @@ NS_ASSUME_NONNULL_END
 - (void)setClientId:(nonnull NSString *)clientId secret:(nonnull NSString *)clientSecret;
 - (void)enableAnonymousSessionsWithPath:(nonnull NSString *)path username:(nonnull NSString *)username password:(nonnull NSString *)password;
 
-- (BOOL)isLoggedIn;					// User is logged in and we have their email address. This will return NO if an anonymous session token exists, but the user is not logged in.
-- (nullable NSString *)email;		// Logged in user's email address.
+// User is logged in and we have their email address. This will return NO if
+// an anonymous session token exists, but the user is not logged in.
+- (BOOL)isLoggedIn;
 
-- (void)createAnonymousSession;		// Requires enableAnonymousSessionsWithPath:username:password to be called first
+// Logged in user's email address.
+- (nullable NSString *)email;
 
-- (void)loginWithEmail:(nonnull NSString *)username password:(nonnull NSString *)password;	// If anonymous sessions are enabled, will attach the user's account to their session. If non anon sessions, will start the usual oAuth2 flow.
-- (void)logoutDueToAuthError;												// If we get a 401 back from a request we should call this to logout the user.
-- (void)logoutDueToNoServerConnectionForExtendedPeriod;						// Call this in situations where a user has not run the app while connected to the internet for a certina period. e.g. to stop access to downloaded contents.
-- (void)logout;																// Destroy the login or anonymous session. If anon sessions enabled, create a new one automatically.
+// Requires enableAnonymousSessionsWithPath:username:password to be called first
+- (void)createAnonymousSession;
 
-- (void)setupAuthHeader;													// Setup the header for TSRestkitManager to use in its requests. Generally you'd do this after setting up TSRestkitManager, usually in applicationDidBecomeActive. Make sure you call this this last, after setting all other options!
+// If anonymous sessions are enabled, will attach the user's account to their
+// session. If non anon sessions, will start the usual oAuth2 flow.
+- (void)loginWithEmail:(nonnull NSString *)username password:(nonnull NSString *)password;
 
-- (void)forgotPasswordForUserParams:(nonnull NSDictionary *)params;			// Params get passed to the request directly, so put whatever your server is expecting in here (e.g. just email, or email + name + DOB etc).
+// If we get a 401 back from a request we should call this to logout the user.
+- (void)logoutDueToAuthError;
+
+// Call this in situations where a user has not run the app while connected
+// to the internet for a certina period. e.g. to stop access to downloaded contents.
+- (void)logoutDueToNoServerConnectionForExtendedPeriod;
+
+// Destroy the login or anonymous session. If anon sessions enabled,
+// create a new one automatically.
+- (void)logoutFrom:(nonnull UIViewController *)viewController;
+
+- (void)logoutFrom:(nonnull UIViewController *)viewController dismissBefore:(BOOL)dismissBefore;
+
+// Setup the header for TSRestkitManager to use in its requests. Generally
+// you'd do this after setting up TSRestkitManager, usually in applicationDidBecomeActive.
+// Make sure you call this this last, after setting all other options!
+- (void)setupAuthHeader;
+
+// Params get passed to the request directly, so put whatever your server
+// is expecting in here (e.g. just email, or email + name + DOB etc).
+- (void)forgotPasswordForUserParams:(nonnull NSDictionary *)params;
 
 + (BOOL)emailIsValid:(nonnull NSString *)email;
 

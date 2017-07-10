@@ -366,6 +366,33 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 #pragma mark -
 #pragma mark Logout methods
 
+- (void)logoutFrom:(nonnull UIViewController *)viewController
+{
+	[self logoutFrom:viewController dismissBefore:NO];
+}
+
+- (void)logoutFrom:(nonnull UIViewController *)viewController dismissBefore:(BOOL)dismissBefore
+{
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"tsuser.logout.title", nil)
+																   message:NSLocalizedString(@"tsuser.logout.message", nil)
+															preferredStyle:UIAlertControllerStyleAlert];
+
+	UIAlertAction* logoutAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"tsuser.logout.logoutaction.title", nil)
+														   style:UIAlertActionStyleDestructive
+														 handler:^(UIAlertAction * action) {
+															 if (dismissBefore) {
+																 [viewController dismissViewControllerAnimated:YES completion:^{
+																	 [self logout];
+																 }];
+															 } else {
+																 [self logout];
+															 }
+														 }];
+	[alert addAction:logoutAction];
+	[alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"tsuser.logout.cancelaction.title", nil) style:UIAlertActionStyleCancel handler:nil]];
+	[viewController presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)logout
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserWillLogoutNotification object:self];
