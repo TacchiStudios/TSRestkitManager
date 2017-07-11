@@ -60,6 +60,8 @@ NS_ASSUME_NONNULL_END
 @optional
 // Only for apps that allow shared keychain storage (e.g. TSSharedKeychainPerAppStorage)
 - (nullable NSSet<NSDictionary *> *)tokenDetailsForSharedKeychainSeparatedAppsThatCanBeExchangedForTokenForCurrentApp;
+- (BOOL)userShouldConfirmSharedLogin;
+
 @end
 
 // Forward declaration of below

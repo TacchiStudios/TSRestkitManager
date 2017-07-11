@@ -9,6 +9,7 @@
 #import <Restkit.h>
 #import <TSRestkitManager.h>
 #import "UIAlertController+Window.h"
+#import "TSUserConfirmSharedLoginViewController.h"
 
 #define LS(s) NSLocalizedString(s, nil)
 #define TSLocalizedStringAccountCreationFailed LS(@"Account creation failed.")
@@ -125,7 +126,23 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 		}
 		
 		if (token) {
-			[self exchangeTokenFromOtherAppInSharedKeychainAccessGroup:token];
+			if ([self.storage respondsToSelector:@selector(userShouldConfirmSharedLogin)] && [self.storage userShouldConfirmSharedLogin]) {
+				UIViewController *presentingViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
+				if (presentingViewController.presentedViewController) {
+					presentingViewController = presentingViewController.presentedViewController;
+				}
+
+				NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TSUser" ofType:@"bundle"]];
+				
+				TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
+				[vc setConfirmBlock:^{
+					[self exchangeTokenFromOtherAppInSharedKeychainAccessGroup:token];
+				}];
+				[vc setLoggedInEmail:token[EMAIL]];
+				[presentingViewController presentViewController:vc animated:YES completion:^{}];
+			} else {
+				[self exchangeTokenFromOtherAppInSharedKeychainAccessGroup:token];
+			}
 		} else if (self.allowsAnonymousSessions) {
 			[self createAnonymousSession];
 		} else {
@@ -395,12 +412,17 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 
 - (void)logout
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserWillLogoutNotification object:self];
+	BOOL initiallyLoggedIn = [self isLoggedIn];
+	if (initiallyLoggedIn) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserWillLogoutNotification object:self];
+	}
 	
 	[self.storage setToken:nil email:nil password:nil];
 	[self setupAuthHeader]; // Basically clear out the current auth header as it's now nil. This will create a new anonymous session if needed.
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidLogoutNotification object:self];
+	if (initiallyLoggedIn) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidLogoutNotification object:self];
+	}
 }
 
 - (void)logoutDueToAuthError

@@ -10,7 +10,6 @@ Pod::Spec.new do |spec|
 	spec.requires_arc			= true
 	spec.ios.deployment_target	= '8.0'
 
-
 	spec.default_subspec = 'Core'
 
 	spec.subspec 'Core' do |s|
@@ -24,7 +23,8 @@ Pod::Spec.new do |spec|
 	end
 
 	spec.subspec 'User' do |s|
-		s.source_files	= 'Pod/User/*'
+		s.source_files	= 'Pod/User/*{.h,.m}'
+		s.resource_bundles = {'TSUser' => 'Pod/User/TSUser.storyboard'}
 		s.dependency 'FFGlobalAlertController'
 		s.dependency 'UICKeyChainStore'
 	end

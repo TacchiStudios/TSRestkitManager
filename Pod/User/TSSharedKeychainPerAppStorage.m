@@ -10,6 +10,7 @@
 #import "UICKeyChainStore.h"
 
 NSString * const SHARED_TOKEN_APP_IDS	= @"shared_token_app_ids";		// Used to store all the tokens and other app details for separated token apps
+NSString * const TSUserDidLogoutAllAppsNotification	= @"TSUserDidLogoutAllApps";
 
 @implementation TSSharedKeychainPerAppStorage
 
@@ -106,6 +107,7 @@ NSString * const SHARED_TOKEN_APP_IDS	= @"shared_token_app_ids";		// Used to sto
 			}
 		}
 		
+		// At this point appIDSet should only contain entries for anonymous tokens/sessions
 		NSData *data = [NSKeyedArchiver archivedDataWithRootObject:appIDSet];
 		
 		NSError *error;
@@ -114,6 +116,8 @@ NSString * const SHARED_TOKEN_APP_IDS	= @"shared_token_app_ids";		// Used to sto
 			NSLog(@"Keychain error - %@ - %s",error.localizedDescription,__PRETTY_FUNCTION__);
 #warning - We need to do something here, like tell the user!
 		}
+		
+		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidLogoutAllAppsNotification object:nil];
 	}
 }
 
