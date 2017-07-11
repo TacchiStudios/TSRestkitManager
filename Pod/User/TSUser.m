@@ -95,6 +95,16 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 	return [self.storage token].length > 0;
 }
 
+- (BOOL)isAnonymousSession
+{
+	return ![self isLoggedIn] && self.allowsAnonymousSessions;
+}
+
+- (BOOL)userShouldConfirmSharedLogin
+{
+	return [self.storage respondsToSelector:@selector(userShouldConfirmSharedLogin)] && [self.storage userShouldConfirmSharedLogin];
+}
+
 #pragma mark -
 #pragma mark Oauth setup
 
@@ -112,7 +122,9 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 			NSDictionary *token = [self.storage tokenDetailsForSharedKeychainSeparatedAppsThatCanBeExchangedForTokenForCurrentApp].anyObject; // It should just be any, as they're all for the same account!
 			
 			if (token) {
-				[self connectThisAnonymousSessionToTokensUser:token];
+				[self performSharedLoginWithToken:token confirmation:^{
+					[self connectThisAnonymousSessionToTokensUser:token];
+				}];
 			}
 		}
 	} else {
@@ -126,28 +138,33 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 		}
 		
 		if (token) {
-			if ([self.storage respondsToSelector:@selector(userShouldConfirmSharedLogin)] && [self.storage userShouldConfirmSharedLogin]) {
-				UIViewController *presentingViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
-				if (presentingViewController.presentedViewController) {
-					presentingViewController = presentingViewController.presentedViewController;
-				}
-
-				NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TSUser" ofType:@"bundle"]];
-				
-				TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
-				[vc setConfirmBlock:^{
-					[self exchangeTokenFromOtherAppInSharedKeychainAccessGroup:token];
-				}];
-				[vc setLoggedInEmail:token[EMAIL]];
-				[presentingViewController presentViewController:vc animated:YES completion:^{}];
-			} else {
+			[self performSharedLoginWithToken:token confirmation:^{
 				[self exchangeTokenFromOtherAppInSharedKeychainAccessGroup:token];
-			}
+			}];
 		} else if (self.allowsAnonymousSessions) {
 			[self createAnonymousSession];
 		} else {
 			// Do nothing, as the user needs to log in.
 		}
+	}
+}
+
+- (void)performSharedLoginWithToken:(NSDictionary *)token confirmation:(void (^)(void))confirmBlock
+{
+	if ([self userShouldConfirmSharedLogin]) {
+		UIViewController *presentingViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
+		if (presentingViewController.presentedViewController) {
+			presentingViewController = presentingViewController.presentedViewController;
+		}
+		
+		NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TSUser" ofType:@"bundle"]];
+		
+		TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
+		[vc setConfirmBlock:confirmBlock];
+		[vc setLoggedInEmail:token[EMAIL]];
+		[presentingViewController presentViewController:vc animated:YES completion:^{}];
+	} else {
+		confirmBlock();
 	}
 }
 
@@ -390,13 +407,15 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 
 - (void)logoutFrom:(nonnull UIViewController *)viewController dismissBefore:(BOOL)dismissBefore
 {
-	UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"tsuser.logout.title", nil)
-																   message:NSLocalizedString(@"tsuser.logout.message", nil)
+	NSString *alertMessage = [NSLocalizedString(@"tsuser.logout.message", nil) stringByAppendingString:[self isAnonymousSession] ? NSLocalizedString(@"tsuser.logout.anonymouswarning", nil) : @""];
+	
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"tsuser.logout.title", nil)
+																   message:alertMessage
 															preferredStyle:UIAlertControllerStyleAlert];
 
-	UIAlertAction* logoutAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"tsuser.logout.logoutaction.title", nil)
+	UIAlertAction *logoutAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"tsuser.logout.logoutaction.title", nil)
 														   style:UIAlertActionStyleDestructive
-														 handler:^(UIAlertAction * action) {
+														 handler:^(UIAlertAction *action) {
 															 if (dismissBefore) {
 																 [viewController dismissViewControllerAnimated:YES completion:^{
 																	 [self logout];
