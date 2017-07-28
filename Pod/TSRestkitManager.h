@@ -6,8 +6,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <RestKit.h>
-#import <AFRKNetworking.h>
+#import "RestKit.h"
+#import "AFRKNetworking.h"
 
 
 // Needs SystemConfiguration

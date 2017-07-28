@@ -6,7 +6,7 @@
 //
 
 #import "TSUser.h"
-#import <Restkit.h>
+#import "Restkit.h"
 #import <TSRestkitManager.h>
 #import "UIAlertController+Window.h"
 #import "TSUserConfirmSharedLoginViewController.h"
@@ -105,16 +105,29 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 	return [self.storage respondsToSelector:@selector(userShouldConfirmSharedLogin)] && [self.storage userShouldConfirmSharedLogin];
 }
 
+- (void)setStorage:(id<TSUserStorage>)storage
+{
+	_storage = storage;
+	
+	// Do this so we can have the auth header setup immediately if it's present.
+	[self setRestkitAuthHeader:[storage token]];
+}
+
 #pragma mark -
 #pragma mark Oauth setup
+
+- (void)setRestkitAuthHeader:(NSString *)token
+{
+	NSLog(@"Setting up oauth token header: %@ - %s", token,__PRETTY_FUNCTION__);
+	[[RKObjectManager sharedManager].HTTPClient setDefaultHeader:@"Authorization" value:token ? [NSString stringWithFormat:@"Bearer %@", token] : nil];
+}
 
 - (void)setupAuthHeader
 {
 	NSString *oAuthToken = [self.storage token];
 	
 	// We do this here, as if we don't have an oauth token we'll want to ensure it's not in the HTTPClient (i.e. if the app is being resumed after another app logged out all accounts etc.
-	NSLog(@"Setting up oauth token header: %@ - %s", oAuthToken,__PRETTY_FUNCTION__);
-	[[RKObjectManager sharedManager].HTTPClient setDefaultHeader:@"Authorization" value:oAuthToken ? [NSString stringWithFormat:@"Bearer %@", oAuthToken] : nil];
+	[self setRestkitAuthHeader:oAuthToken];
 	
 	if (oAuthToken) {
 		// Check if the user has an anonymous oauth token already, but has since logged into another SL app and has a valid oAuth token for that app.
