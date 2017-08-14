@@ -172,6 +172,11 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 		
 		NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TSUser" ofType:@"bundle"]];
 		
+		// In case the app's podfile is using !use_frameworks
+		if (!bundle) {
+			bundle = [NSBundle bundleWithPath:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"/Frameworks/TSRestkitManager.framework/TSUser.bundle"]];
+		}
+		
 		TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
 		[vc setConfirmBlock:confirmBlock];
 		[vc setLoggedInEmail:token[EMAIL]];
