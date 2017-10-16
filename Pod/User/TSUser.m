@@ -6,7 +6,6 @@
 //
 
 #import "TSUser.h"
-#import "Restkit.h"
 #import <TSRestkitManager.h>
 #import "UIAlertController+Window.h"
 #import "TSUserConfirmSharedLoginViewController.h"
@@ -252,8 +251,8 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 
 - (void)handleAnonymousSessionFailed
 {
-	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Couldn't initiate" message:@"Please try again now or close the app and try later" preferredStyle:UIAlertControllerStyleAlert];
-	[alert addAction:[UIAlertAction actionWithTitle:@"Retry" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:LS(@"Couldn't initiate") message:LS(@"Please try again now or close the app and try later") preferredStyle:UIAlertControllerStyleAlert];
+	[alert addAction:[UIAlertAction actionWithTitle:LS(@"Retry") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
 		[self createAnonymousSession];
 	}]];
 	[alert show];
@@ -544,10 +543,7 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 		[self handleSuccessfulLoginWithEmail:token[EMAIL] password:token[PASSWORD] token:responseObject[@"token"]];
 		
 	} failure:^(AFRKHTTPRequestOperation *operation, NSError *error) {
-		NSLog(@"Error - %@ - %s",error.localizedDescription,__PRETTY_FUNCTION__);
-		NSLog(@"Error - %@ - %s",operation.request.URL.absoluteString,__PRETTY_FUNCTION__);
-
-		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidFailExchangingTokenNotification object:nil userInfo:nil];
+		[self handleSharedLoginFailure:operation];
 
 		if (self.allowsAnonymousSessions) {
 			[self createAnonymousSession];
@@ -574,11 +570,16 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 		[self handleSuccessfulLoginWithEmail:token[EMAIL] password:[self.storage password] token:[self.storage token]];
 		
 	} failure:^(AFRKHTTPRequestOperation *operation, NSError *error) {
-		NSLog(@"Error - %@ - %s",error.localizedDescription,__PRETTY_FUNCTION__);
-		NSLog(@"Error - %@ - %s",operation.request.URL.absoluteString,__PRETTY_FUNCTION__);
-		
-		[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidFailExchangingTokenNotification object:nil userInfo:nil];
+		[self handleSharedLoginFailure:operation];
 	}];
+}
+
+- (void)handleSharedLoginFailure:(AFRKHTTPRequestOperation *)operation
+{
+	NSLog(@"Error - %@ - %s",operation.error.localizedDescription,__PRETTY_FUNCTION__);
+	NSLog(@"Error - %@ - %s",operation.request.URL.absoluteString,__PRETTY_FUNCTION__);
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:TSUserDidFailExchangingTokenNotification object:operation userInfo:nil];
 }
 
 @end

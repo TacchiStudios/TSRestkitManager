@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "TSUser.h"
 
-extern NSString * const TSUserDidLogoutAllAppsNotification;
+extern NSString * _Nonnull const TSUserDidLogoutAllAppsNotification;
 
 @interface TSSharedKeychainPerAppStorage : NSObject <TSUserStorage>
 

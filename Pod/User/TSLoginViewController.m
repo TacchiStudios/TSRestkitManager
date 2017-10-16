@@ -97,7 +97,10 @@
 
 - (void)userLoggedIn:(NSNotification *)note
 {
-	[self dismissViewControllerAnimated:YES completion:^{ }];
+	[self dismissViewControllerAnimated:YES completion:^{
+		// We do this twice in case we're dismissing the confirm token exchange VC
+		[self dismissViewControllerAnimated:YES completion:^{}];
+	}];
 }
 
 - (void)loginFailed:(NSNotification *)note
