@@ -426,11 +426,9 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 }
 
 - (void)logoutFrom:(nonnull UIViewController *)viewController dismissBefore:(BOOL)dismissBefore
-{
-	NSString *alertMessage = [NSLocalizedString(@"tsuser.logout.message", nil) stringByAppendingString:[self isAnonymousSession] ? NSLocalizedString(@"tsuser.logout.anonymouswarning", nil) : @""];
-	
+{	
 	UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"tsuser.logout.title", nil)
-																   message:alertMessage
+																   message:NSLocalizedString(@"tsuser.logout.message", nil)
 															preferredStyle:UIAlertControllerStyleAlert];
 
 	UIAlertAction *logoutAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"tsuser.logout.logoutaction.title", nil)
