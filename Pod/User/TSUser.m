@@ -176,10 +176,13 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 			bundle = [NSBundle bundleWithPath:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"/Frameworks/TSRestkitManager.framework/TSUser.bundle"]];
 		}
 		
-		TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
-		[vc setConfirmBlock:confirmBlock];
-		[vc setLoggedInEmail:token[EMAIL]];
-		[presentingViewController presentViewController:vc animated:YES completion:^{}];
+		// Because we don't want to show it twice!
+		if (![presentingViewController isKindOfClass:[TSUserConfirmSharedLoginViewController class]]) {
+			TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
+			[vc setConfirmBlock:confirmBlock];
+			[vc setLoggedInEmail:token[EMAIL]];
+			[presentingViewController presentViewController:vc animated:YES completion:^{}];
+		}
 	} else {
 		confirmBlock();
 	}
