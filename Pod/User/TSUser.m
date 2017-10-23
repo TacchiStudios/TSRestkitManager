@@ -268,7 +268,7 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 
 - (void)handleAnonymousSessionFailed
 {
-	UIAlertController *alert = [UIAlertController alertControllerWithTitle:LS(@"Couldn't initiate") message:LS(@"Please try again now or close the app and try later") preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:LS(@"tsuser.anonymoussession.fail.title") message:LS(@"tsuser.anonymoussession.fail.message") preferredStyle:UIAlertControllerStyleAlert];
 	[alert addAction:[UIAlertAction actionWithTitle:LS(@"Retry") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
 		[self createAnonymousSession];
 	}]];

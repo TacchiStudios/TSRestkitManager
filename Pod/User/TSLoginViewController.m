@@ -112,9 +112,9 @@
 
 - (void)handleNoNetwork:(NSString *)message
 {
-	UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Login error" message:message preferredStyle:UIAlertControllerStyleAlert];
-	[alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
-	[alert addAction:[UIAlertAction actionWithTitle:@"Retry" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Login error", nil) message:message preferredStyle:UIAlertControllerStyleAlert];
+	[alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleCancel handler:nil]];
+	[alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Retry", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
 		[self loginButtonTapped:self.loginButton];
 	}]];
 	[alert show];
