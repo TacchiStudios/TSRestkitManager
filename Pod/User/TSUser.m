@@ -43,6 +43,8 @@ NSString * const TSUserDidFailExchangingTokenNotification		= @"TSUserDidFailExch
 NSString * const TSUserWasLoggedOutDueToAuthError				= @"TSUserWasLoggedOutDueToAuthError";
 NSString * const TSUserWasLoggedOutDueToNoServerConnectionForExtendedPeriod	= @"TSUserWasLoggedOutDueToNoServerConnectionForExtendedPeriod";
 
+extern NSString * const TSUserWillShowSharedLoginViewController = @"TSUserWillShowSharedLoginViewController";
+
 NSString * const OAUTH_TOKEN		= @"oauth_token";
 NSString * const EMAIL				= @"email_address";
 NSString * const PASSWORD			= @"password";
@@ -161,27 +163,39 @@ NSString * const KEYCHAIN_SERVICE		= @"ts_user_keychain_service";	// Not entirel
 	}
 }
 
+- (UIViewController *)presentingViewController
+{
+	UIViewController *presentingViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
+	if (presentingViewController.presentedViewController) {
+		presentingViewController = presentingViewController.presentedViewController;
+	}
+	
+	return presentingViewController;
+}
+
 - (void)performSharedLoginWithToken:(NSDictionary *)token confirmation:(void (^)(void))confirmBlock
 {
 	if ([self userShouldConfirmSharedLogin]) {
-		UIViewController *presentingViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
-		if (presentingViewController.presentedViewController) {
-			presentingViewController = presentingViewController.presentedViewController;
-		}
-		
 		NSBundle *bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TSUser" ofType:@"bundle"]];
-		
-		// In case the app's podfile is using !use_frameworks
-		if (!bundle) {
+		if (!bundle) { // In case the app's podfile is using !use_frameworks
 			bundle = [NSBundle bundleWithPath:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"/Frameworks/TSRestkitManager.framework/TSUser.bundle"]];
 		}
 		
 		// Because we don't want to show it twice!
-		if (![presentingViewController isKindOfClass:[TSUserConfirmSharedLoginViewController class]]) {
-			TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
-			[vc setConfirmBlock:confirmBlock];
-			[vc setLoggedInEmail:token[EMAIL]];
-			[presentingViewController presentViewController:vc animated:YES completion:^{}];
+		if (![[self presentingViewController] isKindOfClass:[TSUserConfirmSharedLoginViewController class]]) {
+			// In case any view controllers (e.g. profile) want to dismiss themselves before we present the confirm vc
+			[[NSNotificationCenter defaultCenter] postNotificationName:TSUserWillShowSharedLoginViewController object:nil];
+			
+			// We use dispatch_after in case a view controller is being dismissed as a result of the above notification
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+				// We get a new reference to the presenting view controller here in case it was dismissed as a result of the above notification
+				TSUserConfirmSharedLoginViewController *vc = [[UIStoryboard storyboardWithName:@"TSUser" bundle:bundle] instantiateViewControllerWithIdentifier:@"confirmSharedLogin"];
+				[vc setConfirmBlock:confirmBlock];
+				[vc setLoggedInEmail:token[EMAIL]];
+				NSLog(@"%@ - %s",[self presentingViewController],__PRETTY_FUNCTION__);
+				[[self presentingViewController] presentViewController:vc animated:YES completion:^{}];
+			});
+
 		}
 	} else {
 		confirmBlock();

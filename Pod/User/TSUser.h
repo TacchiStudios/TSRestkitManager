@@ -41,6 +41,8 @@ extern NSString * const TSUserDidFailExchangingTokenNotification;
 extern NSString * const TSUserWasLoggedOutDueToAuthError;
 extern NSString * const TSUserWasLoggedOutDueToNoServerConnectionForExtendedPeriod;
 
+extern NSString * const TSUserWillShowSharedLoginViewController;
+
 extern NSString * const OAUTH_TOKEN;
 extern NSString * const EMAIL;
 extern NSString * const PASSWORD;
