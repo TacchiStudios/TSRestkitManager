@@ -124,6 +124,9 @@
 {
 	[self.spinner startAnimating];
 	
+	[self.emailTextField resignFirstResponder];
+	[self.passwordTextField resignFirstResponder];
+	
 	[UIView animateWithDuration:0.3 animations:^{
 		[self.loginButton setAlpha:0];
 //		[self.cancelButton setAlpha:0];
@@ -189,7 +192,7 @@
     NSDictionary* info = [notification userInfo];
     CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
 
-    NSNumber *duration = info[@"UIKeyboardAnimationDurationUserInfoKey"];
+    NSNumber *duration = info[UIKeyboardAnimationDurationUserInfoKey];
 
     [self.view layoutIfNeeded];
 
@@ -204,7 +207,7 @@
 - (void)keyboardWillBeHidden:(NSNotification*)notification
 {
     NSDictionary* info = [notification userInfo];
-    NSNumber *duration = info[@"UIKeyboardAnimationDurationUserInfoKey"];
+    NSNumber *duration = info[UIKeyboardAnimationDurationUserInfoKey];
     
     [self.view layoutIfNeeded];
     
