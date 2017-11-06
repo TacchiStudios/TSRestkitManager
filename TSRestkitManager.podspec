@@ -15,6 +15,7 @@ Pod::Spec.new do |spec|
 	spec.subspec 'Core' do |s|
 		s.dependency	'RestKit', '~> 0.27.0'
 		s.dependency	'MagicalRecord', '~> 2.3.2'
+		s.dependency 	'NSDate+Helper', '~> 1.0.0'
 
 		s.prefix_header_contents = <<-EOS
 			#import <SystemConfiguration/SystemConfiguration.h>
